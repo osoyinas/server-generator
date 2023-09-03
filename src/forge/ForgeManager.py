@@ -15,11 +15,11 @@ class ForgeManager:
         self.JSON_FILE = JSON_FILE
         self.versions = []
         self.versions_lock = threading.Lock()
-        if not os.path.exists(JSON_FILE):
+        if not os.path.exists(self.JSON_FILE):
             self.scrap_forge()
             self._save_json()
-        
-        self._load_json()
+        else:
+            self._load_json()
     
     def get_forge_versions(self)->list:
         versions = list(map(lambda element: element['version'], self.versions ))
@@ -70,11 +70,11 @@ class ForgeManager:
             self.versions.append(version)
 
     def _save_json(self):
-        with open(JSON_FILE, 'w' ) as json_file:
+        with open(self.JSON_FILE, 'w' ) as json_file:
             json.dump(self.versions, json_file)
 
     def _load_json(self):
-        with open(JSON_FILE, 'r' ) as json_file:
+        with open(self.JSON_FILE, 'r' ) as json_file:
             self.versions = json.load(json_file)
 
     # Hace una peticion a la url (pagina de la version) y escrapea la pagina
