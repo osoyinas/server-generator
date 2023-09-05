@@ -1,27 +1,29 @@
-from src.forge.ForgeManager import ForgeManager
-from src.spigot.scrap_spigot import *
+"""
+Executable file where the command-line program starts
+"""
 from pick import pick
+from src.forge.forge_manager import ForgeManager
+from src.vanilla.vanilla_manager import VanillaManager
+from src.spigot.spigot_manager import SpigotManager
+
+OPTIONS = {VanillaManager.get_name(): VanillaManager,
+           ForgeManager.get_name(): ForgeManager,
+           SpigotManager.get_name(): SpigotManager}
 
 
 def main():
+    """
+    Main function
+    """
     title = 'Choose Minecraft framework:'
-    options = ['Vanilla', 'Forge', 'Spigot', ]
-    option, index = pick(options=options, title=title)
-    available_versions = []
-    versions_tittle = 'Select the minecraft version:'
-    if (option == 'Forge'):
-        forge = ForgeManager()
-        available_versions = forge.get_forge_versions()
-        version_picked, index = pick(
-            options=available_versions, title=versions_tittle)
-        title = 'Select the download:'
-        options = list(forge.get_version(version_picked).keys())
-        options.pop(0)
-        download_picked, index = pick(options=options, title=title)
+    options = list(OPTIONS.keys())
+    option = pick(options=options, title=title)[0]
 
-    elif option == 'Spigot':
-        available_versions = get_spigot_versions()
-
+    manager = OPTIONS[option]()
+    title = 'Choose version:'
+    options = list(manager.get_versions())
+    option = pick(options=options, title=title)[0]
+    print(manager.get_version_of(option))
 
 if __name__ == '__main__':
     main()
