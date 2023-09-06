@@ -4,9 +4,12 @@ and performing data scraping in Python.
 Derived classes are expected to implement the _scrap method to customize data retrieval for 
 specific purposes.
 """
+import sys
+import os
+import threading
 from abc import ABC, abstractmethod
 import json
-import threading
+import requests
 
 
 class Manager(ABC):
@@ -19,7 +22,6 @@ class Manager(ABC):
         self.versions = []
         self.threads = []
         self.versions_lock = threading.Lock()
-
 
     def get_versions(self) -> list:
         """Obtain a sorted list of the available versions
@@ -44,6 +46,26 @@ class Manager(ABC):
             dict: ex: "{version: "1.12.2", download: "https://link..."}"
         """
         return next(filter(lambda d: d['version'] == version, self.versions), None)
+
+    def download_jar(self, path, url, name):
+        """Donwloads the file given by the url in the path
+
+        Args:
+            path (str): where the file will be storaged
+            url (str): download url
+        """
+        print(f'Downloading {url} in {path}')
+        try:
+            server_path = os.path.join(path, name)
+            response = requests.get(url=url, timeout=10)
+            response.raise_for_status()
+            with open(server_path, 'wb') as jar_file:
+                jar_file.write(response.content)
+        except requests.exceptions.Timeout:
+            print(f"The requested {url} has exceed the timeout.")
+            sys.exit(1)
+        except requests.exceptions.RequestException as ex:
+            print(f"An error ocurred with {url}: {ex}")
 
     def _save_json(self):
         with open(self.json_file, 'w', encoding='utf-8') as json_file:
