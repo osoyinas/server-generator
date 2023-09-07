@@ -1,7 +1,6 @@
 """
 spigot_manager.py
 """
-import threading
 import sys
 import os
 import requests
@@ -10,7 +9,7 @@ from bs4 import BeautifulSoup
 
 from src.manager import Manager
 
-URL = 'https://getbukkit.org/download/spigot'
+URL = 'https://minecraftversion.net/downloads/spigot/'
 JSON_FILE = 'src/spigot/data/spigot_versions.json'
 
 
@@ -42,35 +41,14 @@ class SpigotManager(Manager):
             print(f"An error ocurred : {ex}")
             sys.exit(1)
         soup = BeautifulSoup(response.text, 'html.parser')
-        download_elements = soup.find_all(class_='download-pane')
+        rows = soup.find_all('div', {'class': 'row', 'style': 'margin-bottom: 5%;'})
 
-        for element in download_elements:
-            version = element.find('h2').text
-            download_link_element = element.find('a', class_='btn-download')
+        for row in rows:
+            version = row.find('h2').text
+            download_link_element = row.find('a')
             url = download_link_element['href']
-            new_thread = threading.Thread(
-                target=self._get_version_download, args=(url, version))
-            self.threads.append(new_thread)
+            self.versions.append({'version':version, 'download': url})
 
-        for thread in self.threads:
-            thread.start()
-        for thread in self.threads:
-            thread.join()
-
-    def _get_version_download(self, version, url):
-        try:
-            # Establece un tiempo límite de 10 segundos
-            print(f"GET {url}")
-            response = requests.get(url, timeout=10)
-            response.raise_for_status()  # Check if ok
-            soup = BeautifulSoup(response.text, 'html.parser')
-            download_box = soup.find(class_='well')
-            download_link = download_box.find('a')['href']
-            self._append_version({'version': version, 'link': download_link})
-        except requests.exceptions.Timeout:
-            print(f"The requested {url} has exceed the timeout.")
-        except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred : {ex}")
 
     @staticmethod
     def get_name() -> str:
