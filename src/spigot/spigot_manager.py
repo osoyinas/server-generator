@@ -22,7 +22,7 @@ class SpigotManager(Manager):
         """Constructor
         """
         super().__init__(url=URL, json_file=JSON_FILE)
-        if not os.path.exists(self.json_file):
+        if not os.path.exists(self._json_file):
             self._scrap()
             self._save_json()
         else:
@@ -30,25 +30,25 @@ class SpigotManager(Manager):
 
     def _scrap(self):
         try:
-            print(f"GET {self.url}")
-            response = requests.get(self.url, timeout=10)
+            print(f"GET {self._url}")
+            response = requests.get(self._url, timeout=10)
             response.raise_for_status()  # Check if ok
 
         except requests.exceptions.Timeout:
-            print(f"The requested {self.url} has exceed the timeout.")
+            print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")
             sys.exit(1)
         soup = BeautifulSoup(response.text, 'html.parser')
-        rows = soup.find_all('div', {'class': 'row', 'style': 'margin-bottom: 5%;'})
+        rows = soup.find_all(
+            'div', {'class': 'row', 'style': 'margin-bottom: 5%;'})
 
         for row in rows:
             version = row.find('h2').text
             download_link_element = row.find('a')
             url = download_link_element['href']
-            self.versions.append({'version':version, 'download': url})
-
+            self._versions.append({'version': version, 'download': url})
 
     @staticmethod
     def get_name() -> str:

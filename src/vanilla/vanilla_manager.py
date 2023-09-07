@@ -22,7 +22,7 @@ class VanillaManager(Manager):
         """Constructor
         """
         super().__init__(url=URL, json_file=JSON_FILE)
-        if not os.path.exists(self.json_file):
+        if not os.path.exists(self._json_file):
             self._scrap()
             self._save_json()
         else:
@@ -31,10 +31,10 @@ class VanillaManager(Manager):
     def _scrap(self):
         try:
 
-            response = requests.get(self.url, timeout=10)
+            response = requests.get(self._url, timeout=10)
             response.raise_for_status()
         except requests.exceptions.Timeout:
-            print(f"The requested {self.url} has exceed the timeout.")
+            print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")
@@ -54,15 +54,15 @@ class VanillaManager(Manager):
         for version in filtered_versions:
             new_thread = threading.Thread(
                 target=self._get_version_download, args=(version,))
-            self.threads.append(new_thread)
+            self._threads.append(new_thread)
 
-        for thread in self.threads:
+        for thread in self._threads:
             thread.start()
-        for thread in self.threads:
+        for thread in self._threads:
             thread.join()
 
     def _get_version_download(self, version):
-        url = self.url + 'download/' + version
+        url = self._url + 'download/' + version
         print(f'GET {url}')
 
         try:
@@ -74,7 +74,7 @@ class VanillaManager(Manager):
                 link = download_element['href']
                 self._append_version({'version': version, 'download': link})
         except requests.exceptions.Timeout:
-            print(f"The requested {self.url} has exceed the timeout.")
+            print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")

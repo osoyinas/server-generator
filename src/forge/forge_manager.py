@@ -21,7 +21,7 @@ class ForgeManager(Manager):
 
     def __init__(self) -> None:
         super().__init__(url=URL, json_file=JSON_FILE)
-        if not os.path.exists(self.json_file):
+        if not os.path.exists(self._json_file):
             self._scrap()
             self._save_json()
         else:
@@ -34,11 +34,11 @@ class ForgeManager(Manager):
             _type_: none
         """
         try:
-            response = requests.get(self.url, timeout=10)
+            response = requests.get(self._url, timeout=10)
             response.raise_for_status()  # Check if ok
 
         except requests.exceptions.Timeout:
-            print(f"The requested {self.url} has exceed the timeout.")
+            print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")
@@ -58,19 +58,19 @@ class ForgeManager(Manager):
         last_version = soup.find(class_='elem-active')
         last_version_thread = threading.Thread(
             target=self._get_version_download, args=(last_version.text, response.text))
-        self.threads.append(last_version_thread)
+        self._threads.append(last_version_thread)
 
 
         for element in a_elements:
             version_url = URL + element["href"]
             new_thread = threading.Thread(
                 target=self._request_version_download, args=(element, version_url))
-            self.threads.append(new_thread)
+            self._threads.append(new_thread)
 
-        for thread in self.threads:
+        for thread in self._threads:
             thread.start()
 
-        for thread in self.threads:
+        for thread in self._threads:
             thread.join()
 
 
