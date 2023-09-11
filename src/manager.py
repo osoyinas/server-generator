@@ -24,6 +24,7 @@ class Manager(ABC):
         self._threads = []
         self._picked_version = {}
         self._versions_lock = threading.Lock()
+        self._command = ''
 
     def set_server_path(self, path):
         self.server_path = os.path.join(path, 'server')
@@ -107,7 +108,8 @@ class Manager(ABC):
         self.download_jar(
             url=self._picked_version[download_picked], jar_name=jar_name)
         os.chdir(self.server_path)
-        os.system(f'java -jar {jar_name} --installServer')
+        print('Executing '+ self._get_command(jar_name))
+        os.system(f"{self._get_command(jar_name)}")
 
     def _save_json(self):
         with open(self._json_file, 'w', encoding='utf-8') as json_file:
@@ -128,5 +130,9 @@ class Manager(ABC):
 
     @abstractmethod
     def _scrap(self):
+        """Abstract method which obtains data
+        """
+    @abstractmethod
+    def _get_command(self, jar_name):
         """Abstract method which obtains data
         """
