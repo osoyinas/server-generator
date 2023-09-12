@@ -74,7 +74,7 @@ class SpigotManager(Manager):
             print(f"An error ocurred : {ex}")
 
     def _get_command(self, jar_name):
-        return f'java -jar {jar_name}'
+        return f'java -Xms4G -Xmx8G  -jar {jar_name} nogui'
 
     @staticmethod
     def get_name() -> str:

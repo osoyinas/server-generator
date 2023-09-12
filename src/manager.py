@@ -10,6 +10,7 @@ import threading
 from abc import ABC, abstractmethod
 import json
 import requests
+from src.server_files.starter_generators import generate_eula
 
 
 class Manager(ABC):
@@ -27,6 +28,11 @@ class Manager(ABC):
         self._command = ''
 
     def set_server_path(self, path):
+        """Sets the server's path
+
+        Args:
+            path (_type_): _description_
+        """
         self.server_path = os.path.join(path, 'server')
         if not os.path.exists(self.server_path):
             os.mkdir(self.server_path)
@@ -108,8 +114,10 @@ class Manager(ABC):
         self.download_jar(
             url=self._picked_version[download_picked], jar_name=jar_name)
         os.chdir(self.server_path)
-        print('Executing '+ self._get_command(jar_name))
-        os.system(f"{self._get_command(jar_name)}")
+        generate_eula(self.server_path)
+        print('Executing ' + self._get_command(jar_name))
+
+        # os.system(f"{self._get_command(jar_name)}")
 
     def _save_json(self):
         with open(self._json_file, 'w', encoding='utf-8') as json_file:
