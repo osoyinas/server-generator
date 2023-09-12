@@ -1,9 +1,9 @@
 """ 
 vanilla_manager.py
 """
-import threading
 import os
 import sys
+from concurrent.futures import ThreadPoolExecutor
 import requests
 from bs4 import BeautifulSoup
 
@@ -50,16 +50,9 @@ class VanillaManager(Manager):
             return all(map(lambda digit: digit.isdigit(),  tag.split('.')))
 
         filtered_versions = list(filter(filter_versions, versions))
-
-        for version in filtered_versions:
-            new_thread = threading.Thread(
-                target=self._get_version_download, args=(version,))
-            self._threads.append(new_thread)
-
-        for thread in self._threads:
-            thread.start()
-        for thread in self._threads:
-            thread.join()
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            for version in filtered_versions:
+                executor.submit(self._get_version_download, version)
 
     def _get_version_download(self, version):
         url = self._url + 'download/' + version
@@ -79,6 +72,9 @@ class VanillaManager(Manager):
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")
             sys.exit(1)
+
+    def _get_command(self, jar_name):
+        return f'java -Xms4G -Xmx8G  -jar {jar_name} nogui'
 
     @staticmethod
     def get_name() -> str:

@@ -22,7 +22,6 @@ class Manager(ABC):
         self._url = url
         self._json_file = json_file
         self._versions = []
-        self._threads = []
         self._picked_version = {}
         self._versions_lock = threading.Lock()
         self._command = ''

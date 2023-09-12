@@ -1,9 +1,9 @@
 """
 spigot_manager.py
 """
-import threading
 import sys
 import os
+from concurrent.futures import ThreadPoolExecutor
 import requests
 
 from bs4 import BeautifulSoup
@@ -43,19 +43,13 @@ class SpigotManager(Manager):
             sys.exit(1)
         soup = BeautifulSoup(response.text, 'html.parser')
         download_elements = soup.find_all(class_='download-pane')
-
-        for element in download_elements:
-            version = element.find('h2').text
-            download_link_element = element.find('a', class_='btn-download')
-            url = download_link_element['href']
-            new_thread = threading.Thread(
-                target=self._get_version_download, args=(version, url))
-            self._threads.append(new_thread)
-
-        for thread in self._threads:
-            thread.start()
-        for thread in self._threads:
-            thread.join()
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            for element in download_elements:
+                version = element.find('h2').text
+                download_link_element = element.find(
+                    'a', class_='btn-download')
+                url = download_link_element['href']
+                executor.submit(self._get_version_download, version, url)
 
     def _get_version_download(self, version, url):
         try:

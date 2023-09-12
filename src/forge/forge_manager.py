@@ -1,10 +1,10 @@
 """
 forge_manager.py
 """
-import threading
 import os
 import sys
 import re
+from concurrent.futures import ThreadPoolExecutor
 import requests
 from bs4 import BeautifulSoup
 
@@ -53,26 +53,15 @@ class ForgeManager(Manager):
                 return re.match(r'index_(\d+\.\d+(\.\d+)?)\.html', tag['href'])
         a_elements = soup.find_all(versions_filter)
 
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            last_version = soup.find(class_='elem-active')
+            executor.submit(self._request_version_download,
+                            last_version.text, response.text)
 
-
-        last_version = soup.find(class_='elem-active')
-        last_version_thread = threading.Thread(
-            target=self._get_version_download, args=(last_version.text, response.text))
-        self._threads.append(last_version_thread)
-
-
-        for element in a_elements:
-            version_url = URL + element["href"]
-            new_thread = threading.Thread(
-                target=self._request_version_download, args=(element, version_url))
-            self._threads.append(new_thread)
-
-        for thread in self._threads:
-            thread.start()
-
-        for thread in self._threads:
-            thread.join()
-
+            for element in a_elements:
+                version_url = URL + element["href"]
+                executor.submit(self._request_version_download,
+                                element, version_url)
 
     def _request_version_download(self, element, url):
         try:
@@ -86,7 +75,6 @@ class ForgeManager(Manager):
             print(f"The requested {url} has exceed the timeout.")
         except requests.exceptions.RequestException as ex:
             print(f"An error ocurred : {ex}")
-
 
     def _get_version_download(self, version, html) -> dict:
         print(f'Scrapping {version}')
@@ -106,6 +94,9 @@ class ForgeManager(Manager):
         self._append_version(version_dict)
         return version_dict
 
+    def _get_command(self, jar_name):
+        return f'java -Xms4G -Xmx8G  -jar {jar_name} nogui'
+
     @staticmethod
     def get_name() -> str:
         """Returns manager name
@@ -114,4 +105,3 @@ class ForgeManager(Manager):
             str: name
         """
         return "Forge"
-    
