@@ -41,7 +41,7 @@ class ForgeManager(Manager):
             print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred : {ex}")
+            print(f"An error ocurred: {ex}")
             sys.exit(1)
 
         # parse html str to soup
@@ -74,10 +74,9 @@ class ForgeManager(Manager):
         except requests.exceptions.Timeout:
             print(f"The requested {url} has exceed the timeout.")
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred : {ex}")
+            print(f"An error ocurred {ex}:")
 
     def _get_version_download(self, version, html) -> dict:
-        print(f'Scrapping {version}')
         version_dict = {'version': version}
         soup = BeautifulSoup(html, 'html.parser')
         html_downloads = soup.find_all(class_='download')
@@ -87,9 +86,9 @@ class ForgeManager(Manager):
                 class_='title').text.replace('\n', ' ').strip()
             download_elements = download.find_all(class_='link link-boosted')
             for download_element in download_elements:
-                href = download_element.find('a')['href']
-                version_dict[download_title] = href
-                break
+                adfocus_url = download_element.find('a')['href']
+                url = adfocus_url.split('url=')[1]
+                version_dict[download_title] = url
 
         self._append_version(version_dict)
         return version_dict
