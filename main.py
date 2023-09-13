@@ -35,11 +35,10 @@ def main():
     manager = get_manager(option)
     title = 'Choose version:'
     version_options = list(manager.get_versions())
-    print(version_options)
     picked_version = pick(options=version_options, title=title)[0]
     manager.set_picked_version(picked_version)
     available_downloads = manager.get_picked_version_downloads()
-    download_picked = 'download'
+    download_picked = available_downloads[0] #first download
     if len(available_downloads) > 1:
         title = 'Choose download:'
         download_picked = pick(options=available_downloads, title=title)[0]

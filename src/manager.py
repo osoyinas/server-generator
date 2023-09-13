@@ -116,7 +116,7 @@ class Manager(ABC):
         generate_eula(self.server_path)
         print('Executing ' + self._get_command(jar_name))
         os.system(self._get_command(jar_name))
-        if not os.path.exists('run.*'):
+        if not os.path.exists('run.sh') or not os.path.exists('run.bat') :
             max_ram = int(get_ram_gb()//2)
             generate_sh(self.server_path, 2, max_ram, jar_name)
             generate_bat(self.server_path, 2, max_ram, jar_name)
