@@ -95,7 +95,7 @@ class ForgeManager(Manager):
         return version_dict
 
     def _get_command(self, jar_name):
-        return f'java -Xms4G -Xmx8G  -jar {jar_name} nogui'
+        return f'java -jar {jar_name} --installServer'
 
     @staticmethod
     def get_name() -> str:

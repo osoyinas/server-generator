@@ -10,7 +10,7 @@ import threading
 from abc import ABC, abstractmethod
 import json
 import requests
-from src.server_files.starter_generators import generate_eula
+from src.server_files.starter_generators import generate_eula, generate_bat, generate_sh, get_ram_gb
 
 
 class Manager(ABC):
@@ -115,8 +115,11 @@ class Manager(ABC):
         os.chdir(self.server_path)
         generate_eula(self.server_path)
         print('Executing ' + self._get_command(jar_name))
-
-        # os.system(f"{self._get_command(jar_name)}")
+        os.system(self._get_command(jar_name))
+        if not os.path.exists('run.*'):
+            max_ram = int(get_ram_gb()//2)
+            generate_sh(self.server_path, 2, max_ram, jar_name)
+            generate_bat(self.server_path, 2, max_ram, jar_name)
 
     def _save_json(self):
         with open(self._json_file, 'w', encoding='utf-8') as json_file:
