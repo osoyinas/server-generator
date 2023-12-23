@@ -10,13 +10,13 @@ To install and use the Minecraft Server Generator, follow these steps:
 
 1. Clone this repository to your local machine:
 
-```
+```bash
 git clone https://github.com/osoyinas/server-generator.git
 ```
 
 2. Navigate to the project directory:
 
-```
+```bash
 cd server-generator
 ```
 
@@ -28,11 +28,14 @@ source venv/bin/active
 ```
 
 4. Install the required Python packages:
-   pip install -r requirements.txt
+
+```bash
+pip install -r requirements.txt
+```
 
 5. Run the program:
 
-```
+```bash
 python main.py
 ```
 
