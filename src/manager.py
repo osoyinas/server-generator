@@ -25,6 +25,9 @@ class Manager(ABC):
         self._picked_version = {}
         self._versions_lock = threading.Lock()
         self._command = ''
+        self._scrap()
+        self._save_json()
+        self._load_json()
 
     def set_server_path(self, path):
         """Sets the server's path
@@ -101,7 +104,7 @@ class Manager(ABC):
             print(f"The requested {url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred with {url}: {ex}")
+            print(f"An error ocurred with {url}")
 
     def init_server(self, download_picked):
         """Starts the server on the setted path
@@ -116,7 +119,7 @@ class Manager(ABC):
         generate_eula(self.server_path)
         print('Executing ' + self._get_command(jar_name))
         os.system(self._get_command(jar_name))
-        if not os.path.exists('run.sh') or not os.path.exists('run.bat') :
+        if not os.path.exists('run.sh') or not os.path.exists('run.bat'):
             max_ram = int(get_ram_gb()//2)
             generate_sh(self.server_path, 2, max_ram, jar_name)
             generate_bat(self.server_path, 2, max_ram, jar_name)

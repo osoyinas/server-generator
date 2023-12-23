@@ -22,11 +22,6 @@ class VanillaManager(Manager):
         """Constructor
         """
         super().__init__(url=URL, json_file=JSON_FILE)
-        if not os.path.exists(self._json_file):
-            self._scrap()
-            self._save_json()
-        else:
-            self._load_json()
 
     def _scrap(self):
         try:
@@ -37,7 +32,7 @@ class VanillaManager(Manager):
             print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred : {ex}")
+            print(f"An error ocurred.")
             sys.exit(1)
 
         soup = BeautifulSoup(response.text, 'html.parser')
@@ -70,7 +65,7 @@ class VanillaManager(Manager):
             print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred : {ex}")
+            print(f"An error ocurred.")
             sys.exit(1)
 
     def _get_command(self, jar_name):

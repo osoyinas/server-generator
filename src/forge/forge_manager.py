@@ -21,11 +21,6 @@ class ForgeManager(Manager):
 
     def __init__(self) -> None:
         super().__init__(url=URL, json_file=JSON_FILE)
-        if not os.path.exists(self._json_file):
-            self._scrap()
-            self._save_json()
-        else:
-            self._load_json()
 
     def _scrap(self):
         """Scraps forge main page and parse the returned html with beautiful soup
@@ -41,7 +36,8 @@ class ForgeManager(Manager):
             print(f"The requested {self._url} has exceed the timeout.")
             sys.exit(1)
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred: {ex}")
+            print(f"An error ocurred.")
+
             sys.exit(1)
 
         # parse html str to soup
@@ -74,7 +70,7 @@ class ForgeManager(Manager):
         except requests.exceptions.Timeout:
             print(f"The requested {url} has exceed the timeout.")
         except requests.exceptions.RequestException as ex:
-            print(f"An error ocurred {ex}:")
+            print(f"An error ocurred.")
 
     def _get_version_download(self, version, html) -> dict:
         version_dict = {'version': version}
